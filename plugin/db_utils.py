@@ -120,17 +120,16 @@ def android_write(conn):
     BATCH_SIZE = 1000
     batch = []
     with ThreadPoolExecutor(max_workers=8) as pool:
-        for row in pool.map(read_one, rows):
-            if row is None:
-                continue
-            batch.append(row)
-            if len(batch) >= BATCH_SIZE:
+        for i in range(0, len(rows), BATCH_SIZE):
+            chunk = rows[i:i+BATCH_SIZE]
+            for row in pool.map(read_one, chunk):
+                if row is None:
+                    continue
+                batch.append(row)
+            if batch:
                 cur.executemany(insert_sql, batch)
                 conn.commit()
                 batch.clear()
-    if batch:
-        cur.executemany(insert_sql, batch)
-        conn.commit()
 
     cur.execute(create_index_sql)
     cur.close()
