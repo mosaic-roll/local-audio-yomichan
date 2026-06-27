@@ -133,12 +133,16 @@ class LocalAudioHandler(http.server.SimpleHTTPRequestHandler):
         # narrow sources by language if the param is present
         if "language" in parsed_qcomps:
             lang = parsed_qcomps["language"][0]
-            # keep sources that declare this language, OR have no language set
-            sources = [
-                sid for sid in sources
-                if lang in ALL_SOURCES[sid].data.languages
-                or not ALL_SOURCES[sid].data.languages
-            ]
+            # declared first, empty-language sources appended as fallback;
+            # sources declaring other languages are dropped
+            declared, unspecified = [], []
+            for sid in sources:
+                langs = ALL_SOURCES[sid].data.languages
+                if lang in langs:
+                    declared.append(sid)
+                elif not langs:
+                    unspecified.append(sid)
+            sources = declared + unspecified
 
         if "user" in parsed_qcomps:
             user = [u.strip() for u in parsed_qcomps["user"][0].split(",")]
