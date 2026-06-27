@@ -7,6 +7,7 @@ Source schema:
 - id: string id used as the id in the "source" column, as well as the parameter in the url
 - path: string, path to the source files
 - display: string used to display in Yomitan. Uses %s for the "DISPLAY" column.
+- languages: list of strings, languages supported by the source. Defaults to [] if missing.
 """
 
 import json
